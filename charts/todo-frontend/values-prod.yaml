@@ -1,0 +1,35 @@
+# Production environment overrides for todo-frontend
+
+replicaCount: 2
+
+image:
+  pullPolicy: Always
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+config:
+  NODE_ENV: "production"
+
+networkPolicy:
+  enabled: true
+
+ingress:
+  enabled: true
+  hosts:
+    - host: todo.local
+      paths:
+        - path: /
+          pathType: Prefix

@@ -1,0 +1,78 @@
+{{/*
+Expand the name of the chart.
+*/}}
+{{- define "todo-backend.name" -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create a default fully qualified app name.
+*/}}
+{{- define "todo-backend.fullname" -}}
+{{- if .Values.fullnameOverride }}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default .Chart.Name .Values.nameOverride }}
+{{- if contains $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "todo-backend.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Common labels
+*/}}
+{{- define "todo-backend.labels" -}}
+helm.sh/chart: {{ include "todo-backend.chart" . }}
+{{ include "todo-backend.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/component: backend
+app.kubernetes.io/part-of: ai-native-phase-4
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "todo-backend.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "todo-backend.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "todo-backend.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "todo-backend.fullname" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}
+
+{{/*
+ConfigMap checksum annotation for pod restart on config change
+*/}}
+{{- define "todo-backend.configChecksum" -}}
+checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+{{- end }}
+
+{{/*
+Secret checksum annotation for pod restart on secret change
+*/}}
+{{- define "todo-backend.secretChecksum" -}}
+{{- if .Values.secrets.existingSecret }}
+checksum/secret: {{ .Values.secrets.existingSecret | sha256sum }}
+{{- end }}
+{{- end }}

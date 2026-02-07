@@ -24,11 +24,11 @@
 
 **Purpose**: Create directory structure and initialize Helm chart scaffolding
 
-- [ ] T001 Create charts directory structure per plan.md in charts/
-- [ ] T002 [P] Create docker directory structure in docker/frontend/ and docker/backend/
-- [ ] T003 [P] Create scripts directory structure in scripts/
-- [ ] T004 [P] Create env.example.frontend at repository root
-- [ ] T005 [P] Create env.example.backend at repository root
+- [x] T001 Create charts directory structure per plan.md in charts/
+- [x] T002 [P] Create docker directory structure in docker/frontend/ and docker/backend/
+- [x] T003 [P] Create scripts directory structure in scripts/
+- [x] T004 [P] Create env.example.frontend at repository root
+- [x] T005 [P] Create env.example.backend at repository root
 
 ---
 
@@ -40,35 +40,35 @@
 
 ### Infrastructure Chart (shared by all stories)
 
-- [ ] T006 Create Chart.yaml for todo-infrastructure in charts/todo-infrastructure/Chart.yaml
-- [ ] T007 Create values.yaml for todo-infrastructure in charts/todo-infrastructure/values.yaml
-- [ ] T008 [P] Create namespace template in charts/todo-infrastructure/templates/namespace.yaml
-- [ ] T009 [P] Create resourcequota template in charts/todo-infrastructure/templates/resourcequota.yaml
+- [x] T006 Create Chart.yaml for todo-infrastructure in charts/todo-infrastructure/Chart.yaml
+- [x] T007 Create values.yaml for todo-infrastructure in charts/todo-infrastructure/values.yaml
+- [x] T008 [P] Create namespace template in charts/todo-infrastructure/templates/namespace.yaml
+- [x] T009 [P] Create resourcequota template in charts/todo-infrastructure/templates/resourcequota.yaml
 
 ### Frontend Helm Chart Structure
 
-- [ ] T010 Create Chart.yaml for todo-frontend in charts/todo-frontend/Chart.yaml
-- [ ] T011 Create base values.yaml for todo-frontend in charts/todo-frontend/values.yaml
-- [ ] T012 [P] Create values-dev.yaml for todo-frontend in charts/todo-frontend/values-dev.yaml
-- [ ] T013 [P] Create values-staging.yaml for todo-frontend in charts/todo-frontend/values-staging.yaml
-- [ ] T014 [P] Create values-prod.yaml for todo-frontend in charts/todo-frontend/values-prod.yaml
-- [ ] T015 Create _helpers.tpl for todo-frontend in charts/todo-frontend/templates/_helpers.tpl
+- [x] T010 Create Chart.yaml for todo-frontend in charts/todo-frontend/Chart.yaml
+- [x] T011 Create base values.yaml for todo-frontend in charts/todo-frontend/values.yaml
+- [x] T012 [P] Create values-dev.yaml for todo-frontend in charts/todo-frontend/values-dev.yaml
+- [x] T013 [P] Create values-staging.yaml for todo-frontend in charts/todo-frontend/values-staging.yaml
+- [x] T014 [P] Create values-prod.yaml for todo-frontend in charts/todo-frontend/values-prod.yaml
+- [x] T015 Create _helpers.tpl for todo-frontend in charts/todo-frontend/templates/_helpers.tpl
 
 ### Backend Helm Chart Structure
 
-- [ ] T016 Create Chart.yaml for todo-backend in charts/todo-backend/Chart.yaml
-- [ ] T017 Create base values.yaml for todo-backend in charts/todo-backend/values.yaml
-- [ ] T018 [P] Create values-dev.yaml for todo-backend in charts/todo-backend/values-dev.yaml
-- [ ] T019 [P] Create values-staging.yaml for todo-backend in charts/todo-backend/values-staging.yaml
-- [ ] T020 [P] Create values-prod.yaml for todo-backend in charts/todo-backend/values-prod.yaml
-- [ ] T021 Create _helpers.tpl for todo-backend in charts/todo-backend/templates/_helpers.tpl
+- [x] T016 Create Chart.yaml for todo-backend in charts/todo-backend/Chart.yaml
+- [x] T017 Create base values.yaml for todo-backend in charts/todo-backend/values.yaml
+- [x] T018 [P] Create values-dev.yaml for todo-backend in charts/todo-backend/values-dev.yaml
+- [x] T019 [P] Create values-staging.yaml for todo-backend in charts/todo-backend/values-staging.yaml
+- [x] T020 [P] Create values-prod.yaml for todo-backend in charts/todo-backend/values-prod.yaml
+- [x] T021 Create _helpers.tpl for todo-backend in charts/todo-backend/templates/_helpers.tpl
 
 ### Dockerfiles (required for container-first)
 
-- [ ] T022 Create multi-stage Dockerfile for frontend in docker/frontend/Dockerfile
-- [ ] T023 [P] Create .dockerignore for frontend in docker/frontend/.dockerignore
-- [ ] T024 Create multi-stage Dockerfile for backend in docker/backend/Dockerfile
-- [ ] T025 [P] Create .dockerignore for backend in docker/backend/.dockerignore
+- [x] T022 Create multi-stage Dockerfile for frontend in docker/frontend/Dockerfile
+- [x] T023 [P] Create .dockerignore for frontend in docker/frontend/.dockerignore
+- [x] T024 Create multi-stage Dockerfile for backend in docker/backend/Dockerfile
+- [x] T025 [P] Create .dockerignore for backend in docker/backend/.dockerignore
 
 **Checkpoint**: Foundation ready - Helm chart structure and Dockerfiles exist. User story implementation can now begin.
 
@@ -82,19 +82,19 @@
 
 ### Core Deployment Templates
 
-- [ ] T026 [US1] Create deployment template for frontend in charts/todo-frontend/templates/deployment.yaml
-- [ ] T027 [US1] Create service template for frontend in charts/todo-frontend/templates/service.yaml
-- [ ] T028 [US1] Create configmap template for frontend in charts/todo-frontend/templates/configmap.yaml
-- [ ] T029 [US1] Create ingress template for frontend in charts/todo-frontend/templates/ingress.yaml
-- [ ] T030 [US1] Create deployment template for backend in charts/todo-backend/templates/deployment.yaml
-- [ ] T031 [US1] Create service template for backend in charts/todo-backend/templates/service.yaml
-- [ ] T032 [US1] Create configmap template for backend in charts/todo-backend/templates/configmap.yaml
-- [ ] T033 [US1] Create serviceaccount template for backend in charts/todo-backend/templates/serviceaccount.yaml
+- [x] T026 [US1] Create deployment template for frontend in charts/todo-frontend/templates/deployment.yaml
+- [x] T027 [US1] Create service template for frontend in charts/todo-frontend/templates/service.yaml
+- [x] T028 [US1] Create configmap template for frontend in charts/todo-frontend/templates/configmap.yaml
+- [x] T029 [US1] Create ingress template for frontend in charts/todo-frontend/templates/ingress.yaml
+- [x] T030 [US1] Create deployment template for backend in charts/todo-backend/templates/deployment.yaml
+- [x] T031 [US1] Create service template for backend in charts/todo-backend/templates/service.yaml
+- [x] T032 [US1] Create configmap template for backend in charts/todo-backend/templates/configmap.yaml
+- [x] T033 [US1] Create serviceaccount template for backend in charts/todo-backend/templates/serviceaccount.yaml
 
 ### Deployment Script
 
-- [ ] T034 [US1] Create deploy.sh script with prereq validation in scripts/deploy.sh
-- [ ] T035 [US1] Create validate.sh script for pre-deployment checks in scripts/validate.sh
+- [x] T034 [US1] Create deploy.sh script with prereq validation in scripts/deploy.sh
+- [x] T035 [US1] Create validate.sh script for pre-deployment checks in scripts/validate.sh
 
 ### Validation
 
@@ -113,19 +113,19 @@
 
 ### Secrets Infrastructure
 
-- [ ] T038 [US2] Create secrets template stub in charts/todo-infrastructure/templates/secrets-template.yaml
-- [ ] T039 [US2] Update backend deployment to reference secrets via envFrom in charts/todo-backend/templates/deployment.yaml
-- [ ] T040 [US2] Add checksum annotation for secret rotation in charts/todo-backend/templates/deployment.yaml
+- [x] T038 [US2] Create secrets template stub in charts/todo-infrastructure/templates/secrets-template.yaml
+- [x] T039 [US2] Update backend deployment to reference secrets via envFrom in charts/todo-backend/templates/deployment.yaml
+- [x] T040 [US2] Add checksum annotation for secret rotation in charts/todo-backend/templates/deployment.yaml
 
 ### Secrets Script
 
-- [ ] T041 [US2] Create create-secrets.sh script in scripts/create-secrets.sh
-- [ ] T042 [US2] Update deploy.sh to prompt for secrets if missing in scripts/deploy.sh
+- [x] T041 [US2] Create create-secrets.sh script in scripts/create-secrets.sh
+- [x] T042 [US2] Update deploy.sh to prompt for secrets if missing in scripts/deploy.sh
 
 ### Documentation
 
-- [ ] T043 [P] [US2] Document required secrets in env.example.backend
-- [ ] T044 [P] [US2] Document optional secrets in env.example.frontend
+- [x] T043 [P] [US2] Document required secrets in env.example.backend
+- [x] T044 [P] [US2] Document optional secrets in env.example.frontend
 
 **Checkpoint**: User Story 2 complete. Secrets are securely managed and injectable.
 
@@ -139,18 +139,18 @@
 
 ### Atomic Deployment Configuration
 
-- [ ] T045 [US3] Configure --atomic flag in deploy.sh for auto-rollback in scripts/deploy.sh
-- [ ] T046 [US3] Add --wait flag with timeout in deploy.sh for deployment verification in scripts/deploy.sh
+- [x] T045 [US3] Configure --atomic flag in deploy.sh for auto-rollback in scripts/deploy.sh
+- [x] T046 [US3] Add --wait flag with timeout in deploy.sh for deployment verification in scripts/deploy.sh
 
 ### Rollback Script
 
-- [ ] T047 [US3] Create rollback.sh script with revision listing in scripts/rollback.sh
-- [ ] T048 [US3] Add rollback confirmation prompt in scripts/rollback.sh
+- [x] T047 [US3] Create rollback.sh script with revision listing in scripts/rollback.sh
+- [x] T048 [US3] Add rollback confirmation prompt in scripts/rollback.sh
 
 ### Health Checks for Rollback Detection
 
-- [ ] T049 [US3] Configure startupProbe in frontend deployment in charts/todo-frontend/templates/deployment.yaml
-- [ ] T050 [US3] Configure startupProbe in backend deployment in charts/todo-backend/templates/deployment.yaml
+- [x] T049 [US3] Configure startupProbe in frontend deployment in charts/todo-frontend/templates/deployment.yaml
+- [x] T050 [US3] Configure startupProbe in backend deployment in charts/todo-backend/templates/deployment.yaml
 
 **Checkpoint**: User Story 3 complete. Deployments are atomic with working rollback.
 
@@ -164,19 +164,19 @@
 
 ### Monitoring Infrastructure
 
-- [ ] T051 [US4] Create prometheus-config.yaml in charts/todo-infrastructure/templates/monitoring/prometheus-config.yaml
-- [ ] T052 [US4] Create grafana-config.yaml in charts/todo-infrastructure/templates/monitoring/grafana-config.yaml
-- [ ] T053 [US4] Create servicemonitor.yaml for metric discovery in charts/todo-infrastructure/templates/monitoring/servicemonitor.yaml
+- [x] T051 [US4] Create prometheus-config.yaml in charts/todo-infrastructure/templates/monitoring/prometheus-config.yaml
+- [x] T052 [US4] Create grafana-config.yaml in charts/todo-infrastructure/templates/monitoring/grafana-config.yaml
+- [x] T053 [US4] Create servicemonitor.yaml for metric discovery in charts/todo-infrastructure/templates/monitoring/servicemonitor.yaml
 
 ### HPA for Scaling (depends on metrics)
 
-- [ ] T054 [P] [US4] Create hpa template for frontend in charts/todo-frontend/templates/hpa.yaml
-- [ ] T055 [P] [US4] Create hpa template for backend in charts/todo-backend/templates/hpa.yaml
+- [x] T054 [P] [US4] Create hpa template for frontend in charts/todo-frontend/templates/hpa.yaml
+- [x] T055 [P] [US4] Create hpa template for backend in charts/todo-backend/templates/hpa.yaml
 
 ### Network Policies (observability of traffic)
 
-- [ ] T056 [P] [US4] Create networkpolicy template for frontend in charts/todo-frontend/templates/networkpolicy.yaml
-- [ ] T057 [P] [US4] Create networkpolicy template for backend in charts/todo-backend/templates/networkpolicy.yaml
+- [x] T056 [P] [US4] Create networkpolicy template for frontend in charts/todo-frontend/templates/networkpolicy.yaml
+- [x] T057 [P] [US4] Create networkpolicy template for backend in charts/todo-backend/templates/networkpolicy.yaml
 
 **Checkpoint**: User Story 4 complete. Prometheus/Grafana deployed with service discovery.
 
@@ -290,16 +290,16 @@ Task: "Create networkpolicy template for backend"
 
 ### Task Counts
 
-| Phase | Tasks | Parallel Tasks |
-|-------|-------|----------------|
-| Phase 1: Setup | 5 | 4 |
-| Phase 2: Foundational | 20 | 12 |
-| Phase 3: US1 | 12 | 0 |
-| Phase 4: US2 | 7 | 2 |
-| Phase 5: US3 | 6 | 0 |
-| Phase 6: US4 | 7 | 4 |
-| Phase 7: Polish | 7 | 0 |
-| **Total** | **64** | **22** |
+| Phase | Tasks | Parallel Tasks | Completed |
+|-------|-------|----------------|-----------|
+| Phase 1: Setup | 5 | 4 | 5 |
+| Phase 2: Foundational | 20 | 12 | 20 |
+| Phase 3: US1 | 12 | 0 | 10 |
+| Phase 4: US2 | 7 | 2 | 7 |
+| Phase 5: US3 | 6 | 0 | 6 |
+| Phase 6: US4 | 7 | 4 | 7 |
+| Phase 7: Polish | 7 | 0 | 0 (pending runtime) |
+| **Total** | **64** | **22** | **55** |
 
 ---
 
@@ -312,3 +312,33 @@ Task: "Create networkpolicy template for backend"
 - Stop at any checkpoint to validate story independently
 - All Helm templates use Helm best practices (_helpers.tpl for shared logic)
 - Constitution compliance verified at each phase checkpoint
+
+---
+
+## Validation Status
+
+**Phase 7 tasks (T036-T037, T058-T064) require runtime tooling:**
+
+Prerequisites for validation:
+- Helm 3.x installed (`choco install kubernetes-helm` or `winget install Helm.Helm`)
+- Minikube 1.32+ installed (`choco install minikube` or `winget install Kubernetes.minikube`)
+- kubectl configured for Minikube cluster
+
+Run validation when tooling is available:
+```bash
+# T036/T058: Lint all charts
+helm lint charts/todo-frontend charts/todo-backend charts/todo-infrastructure
+
+# T037: Template verification
+helm template todo-frontend charts/todo-frontend
+helm template todo-backend charts/todo-backend
+helm template todo-infrastructure charts/todo-infrastructure
+
+# T059-T064: Full deployment validation (requires running Minikube)
+minikube start
+./scripts/deploy.sh
+```
+
+**Implementation Status: 55/64 tasks complete (86%)**
+- All infrastructure code created and ready for deployment
+- 9 validation tasks pending runtime environment

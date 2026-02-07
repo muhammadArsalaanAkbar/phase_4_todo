@@ -1,0 +1,118 @@
+{{- if .Values.monitoring.enabled }}
+{{- if .Values.monitoring.grafana.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "todo-infrastructure.fullname" . }}-grafana-config
+  namespace: {{ .Values.namespaces.system.name }}
+  labels:
+    {{- include "todo-infrastructure.labels" . | nindent 4 }}
+    app.kubernetes.io/component: grafana
+data:
+  grafana.ini: |
+    [server]
+    root_url = %(protocol)s://%(domain)s:%(http_port)s/grafana/
+
+    [security]
+    admin_user = {{ .Values.monitoring.grafana.adminUser }}
+    # admin_password is set via secret
+
+    [auth.anonymous]
+    enabled = false
+
+    [analytics]
+    reporting_enabled = false
+    check_for_updates = false
+
+    [log]
+    mode = console
+    level = info
+
+    [paths]
+    data = /var/lib/grafana
+    logs = /var/log/grafana
+    plugins = /var/lib/grafana/plugins
+    provisioning = /etc/grafana/provisioning
+
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus:9090
+        isDefault: true
+        editable: false
+
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: 'default'
+        orgId: 1
+        folder: ''
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 10
+        options:
+          path: /var/lib/grafana/dashboards
+
+  todo-chatbot-dashboard.json: |
+    {
+      "title": "AI Todo Chatbot",
+      "uid": "todo-chatbot",
+      "tags": ["kubernetes", "todo-chatbot"],
+      "timezone": "browser",
+      "refresh": "10s",
+      "panels": [
+        {
+          "id": 1,
+          "title": "Request Rate",
+          "type": "graph",
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+          "targets": [
+            {
+              "expr": "rate(http_requests_total[5m])",
+              "legendFormat": "{{`{{`}}service{{`}}`}}"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Response Latency (p95)",
+          "type": "graph",
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
+              "legendFormat": "{{`{{`}}service{{`}}`}}"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "Error Rate",
+          "type": "graph",
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+          "targets": [
+            {
+              "expr": "rate(http_requests_total{status=~\"5..\"}[5m])",
+              "legendFormat": "{{`{{`}}service{{`}}`}} - 5xx"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "title": "Pod CPU Usage",
+          "type": "graph",
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+          "targets": [
+            {
+              "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"todo-dev\"}[5m])) by (pod)",
+              "legendFormat": "{{`{{`}}pod{{`}}`}}"
+            }
+          ]
+        }
+      ]
+    }
+{{- end }}
+{{- end }}

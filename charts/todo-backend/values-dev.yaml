@@ -1,0 +1,25 @@
+# Development environment overrides for todo-backend
+
+replicaCount: 1
+
+image:
+  tag: "dev-latest"
+  pullPolicy: Never  # Use local Minikube images
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+autoscaling:
+  enabled: false
+
+config:
+  LOG_LEVEL: "DEBUG"
+  CORS_ORIGINS: "http://todo.local,http://localhost:3000"
+
+networkPolicy:
+  enabled: false  # Disable in dev for easier debugging
