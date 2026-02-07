@@ -1,0 +1,18 @@
+{{- if .Values.resourceQuota.enabled }}
+{{- if .Values.namespaces.dev.create }}
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: todo-dev-quota
+  namespace: {{ .Values.namespaces.dev.name }}
+  labels:
+    {{- include "todo-infrastructure.labels" . | nindent 4 }}
+spec:
+  hard:
+    requests.cpu: {{ .Values.resourceQuota.dev.requests.cpu | quote }}
+    requests.memory: {{ .Values.resourceQuota.dev.requests.memory | quote }}
+    limits.cpu: {{ .Values.resourceQuota.dev.limits.cpu | quote }}
+    limits.memory: {{ .Values.resourceQuota.dev.limits.memory | quote }}
+    pods: {{ .Values.resourceQuota.dev.pods | quote }}
+{{- end }}
+{{- end }}

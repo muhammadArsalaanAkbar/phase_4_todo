@@ -1,0 +1,47 @@
+# Default values for todo-infrastructure
+# This chart manages shared infrastructure: namespaces, quotas, monitoring
+
+# Namespace configuration
+namespaces:
+  dev:
+    name: todo-dev
+    create: true
+  staging:
+    name: todo-staging
+    create: false
+  prod:
+    name: todo-prod
+    create: false
+  system:
+    name: todo-system
+    create: true
+
+# Resource quotas per namespace
+resourceQuota:
+  enabled: true
+  dev:
+    requests:
+      cpu: "4"
+      memory: "8Gi"
+    limits:
+      cpu: "8"
+      memory: "16Gi"
+    pods: "20"
+
+# Monitoring configuration
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    retention: 7d
+    scrapeInterval: 15s
+  grafana:
+    enabled: true
+    adminUser: admin
+    # adminPassword should be set via secret
+
+# Labels applied to all resources
+commonLabels:
+  app.kubernetes.io/name: todo-chatbot
+  app.kubernetes.io/managed-by: Helm
+  app.kubernetes.io/part-of: ai-native-phase-4

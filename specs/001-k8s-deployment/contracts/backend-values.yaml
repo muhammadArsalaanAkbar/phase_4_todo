@@ -1,0 +1,62 @@
+# Backend Helm Values Contract
+# This file documents the expected structure for todo-backend values
+
+replicaCount: 1
+
+image:
+  repository: todo-backend
+  tag: "dev-latest"  # Override with SHA in production
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8000
+
+resources:
+  requests:
+    cpu: "200m"
+    memory: "256Mi"
+  limits:
+    cpu: "1000m"
+    memory: "1Gi"
+
+probes:
+  liveness:
+    path: /health
+    port: 8000
+    initialDelaySeconds: 10
+    periodSeconds: 10
+  readiness:
+    path: /health/ready
+    port: 8000
+    initialDelaySeconds: 5
+    periodSeconds: 5
+  startup:
+    path: /health
+    port: 8000
+    failureThreshold: 30
+    periodSeconds: 2
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+
+networkPolicy:
+  enabled: true
+
+secrets:
+  existingSecret: "todo-backend-secrets"
+  # Required keys in secret:
+  # - DATABASE_URL
+  # - OPENAI_API_KEY
+  # - JWT_SECRET
+
+config:
+  LOG_LEVEL: "INFO"
+  CORS_ORIGINS: "http://todo.local"
+
+serviceAccount:
+  create: true
+  name: "todo-backend"

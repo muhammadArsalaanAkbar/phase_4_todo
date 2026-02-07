@@ -1,0 +1,27 @@
+# Staging environment overrides for todo-backend
+
+replicaCount: 2
+
+image:
+  pullPolicy: Always
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 512Mi
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 70
+
+config:
+  LOG_LEVEL: "INFO"
+  CORS_ORIGINS: "http://staging.todo.local"
+
+networkPolicy:
+  enabled: true

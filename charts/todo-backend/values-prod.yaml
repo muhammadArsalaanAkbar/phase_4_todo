@@ -1,0 +1,28 @@
+# Production environment overrides for todo-backend
+
+replicaCount: 2
+
+image:
+  pullPolicy: Always
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 512Mi
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+config:
+  LOG_LEVEL: "INFO"
+  CORS_ORIGINS: "http://todo.local"
+
+networkPolicy:
+  enabled: true

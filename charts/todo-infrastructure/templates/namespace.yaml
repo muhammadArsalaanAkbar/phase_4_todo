@@ -1,0 +1,39 @@
+{{- if .Values.namespaces.dev.create }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.namespaces.dev.name }}
+  labels:
+    {{- include "todo-infrastructure.labels" . | nindent 4 }}
+    environment: development
+---
+{{- end }}
+{{- if .Values.namespaces.staging.create }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.namespaces.staging.name }}
+  labels:
+    {{- include "todo-infrastructure.labels" . | nindent 4 }}
+    environment: staging
+---
+{{- end }}
+{{- if .Values.namespaces.prod.create }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.namespaces.prod.name }}
+  labels:
+    {{- include "todo-infrastructure.labels" . | nindent 4 }}
+    environment: production
+---
+{{- end }}
+{{- if .Values.namespaces.system.create }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.namespaces.system.name }}
+  labels:
+    {{- include "todo-infrastructure.labels" . | nindent 4 }}
+    environment: system
+{{- end }}

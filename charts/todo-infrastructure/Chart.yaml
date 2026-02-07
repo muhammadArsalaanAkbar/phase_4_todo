@@ -1,0 +1,14 @@
+apiVersion: v2
+name: todo-infrastructure
+description: Infrastructure components for AI Todo Chatbot (namespaces, quotas, monitoring)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - infrastructure
+  - monitoring
+  - prometheus
+  - grafana
+maintainers:
+  - name: AI-Native Team
+home: https://github.com/ai-native/phase-4

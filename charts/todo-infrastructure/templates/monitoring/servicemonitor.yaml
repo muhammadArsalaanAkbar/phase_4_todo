@@ -1,0 +1,50 @@
+{{- if .Values.monitoring.enabled }}
+{{- if .Values.monitoring.prometheus.enabled }}
+# ServiceMonitor for Frontend
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "todo-infrastructure.fullname" . }}-servicemonitor-info
+  namespace: {{ .Values.namespaces.system.name }}
+  labels:
+    {{- include "todo-infrastructure.labels" . | nindent 4 }}
+    app.kubernetes.io/component: monitoring
+data:
+  README: |
+    ServiceMonitor Configuration
+
+    This chart uses annotation-based service discovery for Prometheus.
+    Services with the following annotations will be scraped:
+
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+
+    The backend service template includes these annotations.
+
+    For production environments with prometheus-operator, you can add
+    proper ServiceMonitor resources:
+
+    ---
+    apiVersion: monitoring.coreos.com/v1
+    kind: ServiceMonitor
+    metadata:
+      name: todo-backend
+      labels:
+        app: todo-backend
+    spec:
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: todo-backend
+      endpoints:
+        - port: http
+          path: /metrics
+          interval: 15s
+      namespaceSelector:
+        matchNames:
+          - todo-dev
+          - todo-staging
+          - todo-prod
+{{- end }}
+{{- end }}
