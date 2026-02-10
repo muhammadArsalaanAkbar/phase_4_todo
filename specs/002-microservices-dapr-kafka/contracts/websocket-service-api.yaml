@@ -1,0 +1,67 @@
+openapi: "3.1.0"
+info:
+  title: WebSocket Service API
+  version: "1.0.0"
+  description: |
+    WebSocket service for real-time task update broadcasting.
+    Subscribes to task-updates topic and broadcasts to connected clients.
+servers:
+  - url: http://localhost:8003
+    description: Local development
+  - url: http://websocket-service.todo-dev.svc.cluster.local:8003
+    description: Minikube cluster
+
+paths:
+  /health:
+    get:
+      summary: Liveness probe
+      operationId: healthCheck
+      responses:
+        "200":
+          description: Service is alive
+
+  /health/ready:
+    get:
+      summary: Readiness probe
+      operationId: readinessCheck
+      responses:
+        "200":
+          description: Service is ready
+        "503":
+          description: Service is not ready
+
+  /ws:
+    get:
+      summary: WebSocket connection endpoint
+      operationId: websocketConnect
+      description: |
+        Upgrade to WebSocket connection. Clients receive real-time
+        task update events as JSON messages.
+
+        Message format sent to clients:
+        ```json
+        {
+          "event_type": "task-created",
+          "task_id": "uuid",
+          "timestamp": "2026-02-08T10:00:00Z",
+          "payload": { ... }
+        }
+        ```
+      responses:
+        "101":
+          description: Switching protocols to WebSocket
+
+  /api/v1/connections:
+    get:
+      summary: Get active connection count
+      operationId: getConnectionCount
+      responses:
+        "200":
+          description: Connection statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  active_connections:
+                    type: integer

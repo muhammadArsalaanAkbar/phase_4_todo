@@ -1,0 +1,84 @@
+# Task: T008 — Redpanda single-node Kafka broker deployment
+# Lightweight Kafka-compatible broker (~1GB RAM) per research.md
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: todo-dev
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redpanda
+  namespace: todo-dev
+  labels:
+    app: redpanda
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redpanda
+  template:
+    metadata:
+      labels:
+        app: redpanda
+    spec:
+      containers:
+        - name: redpanda
+          image: docker.redpanda.com/redpandadata/redpanda:latest
+          args:
+            - redpanda
+            - start
+            - --smp=1
+            - --memory=1G
+            - --overprovisioned
+            - --kafka-addr=PLAINTEXT://0.0.0.0:9092
+            - --advertise-kafka-addr=PLAINTEXT://redpanda.todo-dev.svc.cluster.local:9092
+            - --pandaproxy-addr=0.0.0.0:8082
+            - --advertise-pandaproxy-addr=redpanda.todo-dev.svc.cluster.local:8082
+            - --mode=dev-container
+          ports:
+            - containerPort: 9092
+              name: kafka
+            - containerPort: 8082
+              name: proxy
+            - containerPort: 9644
+              name: admin
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          readinessProbe:
+            tcpSocket:
+              port: 9092
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: 9092
+            initialDelaySeconds: 15
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redpanda
+  namespace: todo-dev
+  labels:
+    app: redpanda
+spec:
+  type: ClusterIP
+  selector:
+    app: redpanda
+  ports:
+    - port: 9092
+      targetPort: 9092
+      name: kafka
+    - port: 8082
+      targetPort: 8082
+      name: proxy
+    - port: 9644
+      targetPort: 9644
+      name: admin

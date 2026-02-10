@@ -1,0 +1,17 @@
+# Task: T010 — Dapr State Store component (state.postgresql v2)
+# Uses K8s secret for connection string per research.md
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: statestore
+  namespace: todo-dev
+spec:
+  type: state.postgresql
+  version: v2
+  metadata:
+    - name: connectionString
+      secretKeyRef:
+        name: dapr-db-secret
+        key: connectionString
+auth:
+  secretStore: kubernetes-secrets

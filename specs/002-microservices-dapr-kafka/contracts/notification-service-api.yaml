@@ -1,0 +1,106 @@
+openapi: "3.1.0"
+info:
+  title: Notification Service API
+  version: "1.0.0"
+  description: |
+    Notification delivery service. Subscribes to reminders topic
+    and delivers in-app notifications.
+servers:
+  - url: http://localhost:8004
+    description: Local development
+  - url: http://notification-service.todo-dev.svc.cluster.local:8004
+    description: Minikube cluster
+
+paths:
+  /health:
+    get:
+      summary: Liveness probe
+      operationId: healthCheck
+      responses:
+        "200":
+          description: Service is alive
+
+  /health/ready:
+    get:
+      summary: Readiness probe
+      operationId: readinessCheck
+      responses:
+        "200":
+          description: Service is ready
+        "503":
+          description: Service is not ready
+
+  /api/v1/notifications:
+    get:
+      summary: List notifications
+      operationId: listNotifications
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, sent, failed]
+        - name: task_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Notification"
+                  total:
+                    type: integer
+
+components:
+  schemas:
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        task_id:
+          type: string
+          format: uuid
+        notification_type:
+          type: string
+          enum: [reminder, update]
+        channel:
+          type: string
+          enum: [in_app]
+        status:
+          type: string
+          enum: [pending, sent, failed]
+        payload:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        sent_at:
+          type: string
+          format: date-time
+        error_message:
+          type: string

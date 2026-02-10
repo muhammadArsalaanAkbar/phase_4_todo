@@ -2,398 +2,333 @@
 ================================================================================
 SYNC IMPACT REPORT
 ================================================================================
-Version Change: 0.0.0 → 1.0.0 (MAJOR - initial constitution ratification)
+Version Change: 1.0.0 → 2.0.0 (MAJOR - complete Phase V redefinition)
 
-Added Principles:
-  - I. Container-First Architecture
-  - II. No Manual YAML
-  - III. Secrets Governance
-  - IV. Helm-Managed Deployments
-  - V. AI-Assisted DevOps
-  - VI. Observability by Default
-  - VII. Immutable Infrastructure
-  - VIII. Fail-Fast Validation
+Modified Principles:
+  - I. Container-First Architecture → I. Spec-Driven Development (redefined)
+  - II. No Manual YAML → II. Dapr-Mediated Communication (redefined)
+  - III. Secrets Governance → III. Event-Driven Architecture (redefined)
+  - IV. Helm-Managed Deployments → IV. Microservices Isolation (redefined)
+  - V. AI-Assisted DevOps → V. Secrets Governance (redefined)
+  - VI. Observability by Default → VI. Phase 4 Immutability (new)
+  - VII. Immutable Infrastructure → VII. Container-First Deployment (redefined)
+  - VIII. Fail-Fast Validation → VIII. Fail-Fast Validation (redefined)
+  - (new) → IX. Observability & Traceability (new)
 
 Added Sections:
-  - Infrastructure Rules
-  - Environment Variable Governance
-  - Containerization Standards
-  - Kubernetes Standards
-  - Helm Governance
-  - AI DevOps Policy
-  - Security Standards
-  - Scalability Standards
-  - Observability & Debugging Policy
-  - Non-Goals
-  - Acceptance Definition
+  - Technology Stack Constraints
+  - Kafka / Event Rules
+  - Dapr Rules
+  - Deployment & CI/CD
+  - Failure Modes / Restrictions
+
+Removed Sections:
+  - Infrastructure Rules (replaced by Technology Stack Constraints)
+  - Environment Variable Governance (subsumed by Dapr Secrets)
+  - Containerization Standards (simplified into Container-First Deployment)
+  - Kubernetes Standards (subsumed by Deployment & CI/CD)
+  - Helm Governance (no longer exclusive mechanism; Dapr replaces)
+  - AI DevOps Policy (removed; AI agents governed by Spec-Driven principle)
+  - Scalability Standards (deferred to feature specs)
+  - Non-Goals (replaced by Failure Modes / Restrictions)
 
 Templates Requiring Updates:
-  ✅ plan-template.md - Constitution Check section compatible
-  ✅ spec-template.md - Requirements section compatible
-  ✅ tasks-template.md - Phase structure compatible
+  ✅ plan-template.md - Constitution Check section compatible (generic gates)
+  ✅ spec-template.md - Requirements section compatible (generic structure)
+  ✅ tasks-template.md - Phase structure compatible (generic phases)
 
 Follow-up TODOs: None
 ================================================================================
 -->
 
-# AI-Native Todo Chatbot Constitution — Phase IV
+# AI-Native Todo Chatbot Constitution — Phase V
 
 ## Vision
 
-Phase IV transforms the AI-Native Todo Chatbot from a cloud-hosted application into a
-**production-grade, locally-deployable Kubernetes workload**. This phase establishes
-the infrastructure patterns, DevOps practices, and operational standards that enable
-the system to run reliably on Minikube today and scale to managed Kubernetes clusters
-(EKS, GKE, AKS) in the future.
+Phase V transforms the AI-Native Todo Chatbot from a monolithic Kubernetes
+workload into a **distributed, event-driven microservices platform**. This phase
+introduces Dapr as the distributed runtime, Kafka as the event backbone, and
+decomposes the application into five purpose-built microservices. Phase 4 code
+serves as reference only — all new implementation is Python/FastAPI.
 
-**North Star**: Any developer MUST be able to spin up the complete system locally with
-a single command (`helm install`) and have full observability within 5 minutes.
+**North Star**: Every microservice MUST communicate exclusively through Dapr
+sidecars. No service may directly call another service's API or directly access
+Kafka or PostgreSQL. All development MUST be spec-driven with traceable Task IDs.
 
 ## Core Principles
 
-### I. Container-First Architecture
+### I. Spec-Driven Development
 
-Every service, utility, and dependency MUST run inside a container. Host-level
-dependencies are forbidden except for container runtime prerequisites.
+No agent or developer MAY write code without an assigned Task ID. All code
+MUST be traceable to a specification artifact.
 
-- All application components (Next.js frontend, FastAPI backend) MUST have Dockerfiles
-- Build artifacts MUST be container images, not raw binaries or source deployments
-- Local development MUST use the same container images that production uses
-- Base images MUST be pinned to specific SHA digests, not floating tags
+- Every code file MUST reference its Phase 5 Task ID in comments
+- No feature improvisation is permitted; missing requirements MUST trigger
+  a clarification request, not assumptions
+- Tasks MUST be atomic and testable with explicit preconditions, outputs,
+  and artifacts
+- The workflow is: Spec → Plan → Tasks → Implement → Validate
 
-**Rationale**: Container-first ensures environment parity, eliminates "works on my
-machine" failures, and provides the foundation for Kubernetes orchestration.
+**Rationale**: Spec-driven development eliminates scope creep, ensures
+traceability, and enables any agent or developer to pick up work with full
+context. Ungoverned code is untraceable code.
 
-### II. No Manual YAML
+### II. Dapr-Mediated Communication
 
-Kubernetes manifests MUST NOT be hand-written. All Kubernetes resources MUST be
-generated through Helm charts, Kustomize overlays, or AI-assisted tooling.
+All inter-service communication MUST flow through Dapr sidecars. Direct
+service-to-service API calls are prohibited.
 
-- Direct `kubectl apply -f` of hand-written YAML is prohibited in production workflows
-- Helm templates MUST be the canonical source for all Kubernetes objects
-- `kubectl-ai` and `kagent` MAY be used for exploration and prototyping
-- Generated manifests MUST be committed to version control for auditability
+- **Pub/Sub**: Event-driven messaging between microservices
+- **State**: Conversation and task cache management
+- **Jobs API**: Recurring tasks and scheduled reminders
+- **Secrets API**: API keys, database credentials, and sensitive configuration
+- Microservices MUST NOT access Kafka or PostgreSQL directly; all access
+  MUST go through Dapr building blocks
 
-**Rationale**: Manual YAML is error-prone, inconsistent, and unscalable. Template-based
-generation enforces standards and enables parameterized deployments.
+**Rationale**: Dapr provides a portable, vendor-neutral abstraction layer.
+Services remain decoupled from infrastructure, enabling migration between
+Kafka providers (Redpanda, Confluent, Strimzi) or databases without code
+changes.
 
-### III. Secrets Governance
+### III. Event-Driven Architecture
 
-Secrets MUST NEVER be hardcoded in source code, container images, Helm values, or
-any file tracked in version control.
+All cross-service data flow MUST use Kafka topics via Dapr Pub/Sub. Synchronous
+request-response patterns between services are prohibited except for health
+checks.
 
-- All secrets MUST be injected via Kubernetes Secrets or external secret managers
+- Kafka topics:
+  - `task-events` → Todo CRUD events
+  - `reminders` → Scheduled reminder notifications
+  - `task-updates` → Real-time sync via WebSocket
+- Event schemas MUST follow the standardized format defined in the Phase 5
+  feature plan
+- Microservices MUST publish and subscribe exclusively via Dapr Pub/Sub
+- Events MUST be idempotent; consumers MUST handle duplicate delivery
+
+**Rationale**: Event-driven architecture enables loose coupling, temporal
+decoupling, and natural audit trails. Kafka provides durable, ordered event
+streams that serve as the system's source of truth for state transitions.
+
+### IV. Microservices Isolation
+
+The system MUST be decomposed into five independently deployable microservices.
+Each service owns its domain and MUST NOT share databases or internal state
+with other services.
+
+- **Todo Service**: CRUD operations for tasks and task lifecycle management
+- **Notification Service**: Email, push, and in-app notification delivery
+- **Recurring Task Service**: Scheduled task generation via Dapr Jobs API
+- **Audit Service**: Event logging and compliance trail
+- **WebSocket Service**: Real-time client updates via `task-updates` topic
+
+Each service MUST:
+- Have its own Dockerfile and container image
+- Be independently deployable without affecting other services
+- Communicate only through Dapr sidecars (Principle II)
+- Own its data; no shared database tables across services
+
+**Rationale**: Service isolation enables independent scaling, deployment, and
+failure containment. A bug in the Notification Service MUST NOT cascade to
+Todo Service availability.
+
+### V. Secrets Governance
+
+Secrets MUST NEVER be hardcoded in source code, container images, configuration
+files, or any artifact tracked in version control.
+
+- All secrets MUST be managed via Dapr Secrets API or Kubernetes Secrets
 - `.env` files are permitted for local development ONLY and MUST be gitignored
-- Secrets MUST be referenced by name in Helm values, never by value
-- Secret rotation MUST be possible without rebuilding images or redeploying charts
-- OpenAI API keys, database credentials, and JWT secrets are explicitly covered
+- API keys (OpenAI, etc.), database credentials, and JWT secrets are
+  explicitly covered
+- Secret rotation MUST be possible without rebuilding images or redeploying
+  services
 
-**Rationale**: Hardcoded secrets are a critical security vulnerability. External
-injection enables rotation, auditing, and least-privilege access patterns.
+**Rationale**: Hardcoded secrets are a critical security vulnerability. Dapr
+Secrets API provides a unified, provider-agnostic interface for secret
+management across local (file) and cloud (Azure Key Vault, AWS Secrets Manager)
+environments.
 
-### IV. Helm-Managed Deployments
+### VI. Phase 4 Immutability
 
-Helm MUST be the exclusive deployment mechanism for all Kubernetes resources.
+Phase 4 code is reference only. No agent or developer MAY modify Phase 4
+source code, configuration, or deployment artifacts.
 
-- One Helm chart per logical service boundary (frontend, backend, infrastructure)
-- Charts MUST support multiple environments via values files (dev, staging, prod)
-- Chart versions MUST follow SemVer and be tagged in version control
-- `helm upgrade --atomic` MUST be the standard deployment command
-- Rollback capability (`helm rollback`) MUST be tested and documented
+- Phase 4 frontend serves as UI reference; Phase 5 does not modify it
+- Phase 4 backend serves as API reference; Phase 5 reimplements in Python
+- Phase 4 Helm charts, Dockerfiles, and K8s manifests MUST NOT be altered
+- Phase 5 code MUST live in its own directory structure, separate from
+  Phase 4 artifacts
 
-**Rationale**: Helm provides release management, rollback capability, and
-parameterization that raw manifests cannot. Atomic upgrades prevent partial failures.
+**Rationale**: Phase 4 represents a stable, validated baseline. Modifying it
+risks breaking proven infrastructure and conflates two distinct architectural
+paradigms (monolith vs. microservices).
 
-### V. AI-Assisted DevOps
+### VII. Container-First Deployment
 
-AI tooling (`kubectl-ai`, `kagent`) MUST be leveraged to accelerate Kubernetes
-operations while maintaining human oversight.
+Every microservice MUST run inside a container. Local deployment uses Minikube;
+cloud deployment targets AKS or GKE.
 
-- AI-generated manifests MUST be reviewed before applying to any environment
-- `kubectl-ai` MAY be used for debugging, resource inspection, and one-off queries
-- `kagent` MAY be used for automated remediation with explicit approval workflows
-- AI suggestions MUST be validated against security policies before execution
-- Human approval is REQUIRED for any destructive operation (delete, scale-to-zero)
+- All services MUST have production-ready Dockerfiles
+- Local development MUST use Minikube with the same container images
+- Cloud deployment (AKS/GKE) MUST mirror the Minikube configuration
+- Images MUST be tagged with SemVer; `:latest` is prohibited outside local
+  development
 
-**Rationale**: AI accelerates DevOps velocity but is not infallible. Human-in-the-loop
-ensures accountability and prevents automated misconfiguration.
-
-### VI. Observability by Default
-
-Every deployed component MUST emit structured logs, expose metrics, and propagate
-distributed traces without additional configuration.
-
-- Logs MUST be JSON-formatted and written to stdout/stderr
-- Prometheus metrics MUST be exposed on a standard `/metrics` endpoint
-- OpenTelemetry tracing MUST be instrumented for all HTTP/gRPC boundaries
-- Health checks (liveness, readiness, startup) MUST be defined for all containers
-- Dashboards and alerts MUST be deployed alongside the application
-
-**Rationale**: You cannot manage what you cannot measure. Observability is not
-optional—it is a deployment prerequisite.
-
-### VII. Immutable Infrastructure
-
-Deployed containers MUST be treated as immutable. Configuration changes MUST trigger
-new deployments, not in-place modifications.
-
-- `kubectl exec` for configuration changes is prohibited
-- ConfigMaps and Secrets trigger pod restarts when changed (via checksums)
-- Image tags MUST be immutable (no `:latest` in production)
-- Debugging containers MAY be attached ephemerally but MUST NOT persist changes
-
-**Rationale**: Immutability ensures reproducibility and eliminates configuration drift
-that makes debugging impossible.
+**Rationale**: Container-first ensures environment parity between local and
+cloud. Minikube-first development catches deployment issues early, before
+they reach shared environments.
 
 ### VIII. Fail-Fast Validation
 
 Misconfigurations MUST be caught at build time or deploy time, never at runtime.
+GitHub Actions enforces the CI/CD pipeline.
 
-- Helm charts MUST pass `helm lint` and `helm template` validation in CI
+- GitHub Actions MUST build Docker images for all services
+- GitHub Actions MUST run unit and integration tests before deployment
+- GitHub Actions MUST deploy to Minikube (CI) and cloud cluster (CD)
 - Container images MUST pass vulnerability scanning before deployment
-- Kubernetes manifests MUST pass policy validation (OPA/Gatekeeper or equivalent)
-- Startup probes MUST fail fast if critical dependencies are unavailable
-- Schema validation MUST be enforced for all ConfigMap and Secret structures
+- Startup probes MUST fail fast if critical dependencies (Dapr, Kafka,
+  PostgreSQL) are unavailable
 
-**Rationale**: Every error caught before production is an incident prevented. Fail-fast
-reduces mean time to detection (MTTD) to zero for preventable issues.
+**Rationale**: Every error caught before production is an incident prevented.
+Automated CI/CD eliminates human error in the build-test-deploy cycle.
 
-## Infrastructure Rules
+### IX. Observability & Traceability
 
-### Cluster Requirements
+Every deployed component MUST emit structured logs that include Task ID
+references for end-to-end traceability.
+
+- Logs MUST be JSON-formatted and written to stdout/stderr
+- All log entries MUST include a `task_id` field linking to the originating
+  Phase 5 Task ID
+- All inter-service communication MUST support TLS or mTLS where possible
+- Health checks (liveness, readiness) MUST be defined for all containers
+
+**Rationale**: Traceability from spec to runtime is the core promise of
+spec-driven development. Without Task ID correlation in logs, debugging
+distributed microservices becomes guesswork.
+
+## Technology Stack Constraints
 
 | Component | Specification |
 |-----------|---------------|
-| Runtime | Minikube 1.32+ or Docker Desktop Kubernetes |
-| Kubernetes | v1.28+ |
-| Container Runtime | containerd or Docker |
-| CPU | Minimum 4 cores allocated to cluster |
-| Memory | Minimum 8GB allocated to cluster |
-| Storage | 20GB available for images and PVCs |
+| Backend Language | Python (FastAPI / Async) |
+| Frontend | Phase 4 UI (reference only, no modification) |
+| Database | PostgreSQL (Neon DB) |
+| Event Messaging | Kafka (Redpanda Cloud or Strimzi self-hosted) |
+| Distributed Runtime | Dapr (Pub/Sub, State, Jobs, Secrets) |
+| Local Deployment | Minikube |
+| Cloud Deployment | AKS / GKE |
+| Containerization | Docker |
+| CI/CD | GitHub Actions |
 
-### Namespace Strategy
+### Microservices
 
-- `todo-dev`: Development deployments (default)
-- `todo-staging`: Pre-production validation
-- `todo-prod`: Production workloads (local simulation)
-- `todo-system`: Infrastructure components (ingress, monitoring)
+| Service | Responsibility |
+|---------|---------------|
+| Todo Service | Task CRUD and lifecycle management |
+| Notification Service | Email, push, in-app notifications |
+| Recurring Task Service | Scheduled task generation (Dapr Jobs) |
+| Audit Service | Event logging and compliance trail |
+| WebSocket Service | Real-time client sync via `task-updates` |
 
-### Resource Quotas
+## Kafka / Event Rules
 
-All namespaces MUST have ResourceQuotas defined to prevent runaway resource consumption.
+### Topic Definitions
 
-## Environment Variable Governance
+| Topic | Purpose | Producers | Consumers |
+|-------|---------|-----------|-----------|
+| `task-events` | Todo CRUD events | Todo Service | Audit, Notification |
+| `reminders` | Scheduled reminders | Recurring Task Service | Notification |
+| `task-updates` | Real-time sync | Todo Service | WebSocket Service |
 
-### Classification
+### Event Governance
 
-| Tier | Examples | Handling |
-|------|----------|----------|
-| **Public** | `NODE_ENV`, `LOG_LEVEL` | ConfigMap, committed to repo |
-| **Sensitive** | `DATABASE_URL`, `OPENAI_API_KEY` | Kubernetes Secret, never committed |
-| **Runtime** | `POD_NAME`, `POD_IP` | Downward API injection |
+- All events MUST be published/subscribed via Dapr Pub/Sub components
+- Event schemas MUST follow the standardized format in the Phase 5 plan
+- Events MUST be idempotent; consumers MUST handle duplicate delivery
+- New topics require explicit specification before implementation
 
-### Naming Convention
+## Dapr Rules
 
-- Prefix with service name: `BACKEND_DATABASE_URL`, `FRONTEND_API_URL`
-- Use SCREAMING_SNAKE_CASE exclusively
-- Document all variables in a `env.example` file per service
+### Building Block Usage
 
-### Injection Hierarchy
+| Building Block | Purpose | Services |
+|----------------|---------|----------|
+| Pub/Sub | Event-driven messaging | All services |
+| State | Conversation/task cache | Todo, WebSocket |
+| Jobs API | Recurring tasks, reminders | Recurring Task Service |
+| Secrets API | API keys, DB credentials | All services |
 
-1. Kubernetes Secrets (highest precedence)
-2. Kubernetes ConfigMaps
-3. Container image defaults (lowest precedence, discouraged)
+### Constraints
 
-## Containerization Standards
+- Microservices MUST NOT bypass Dapr to access Kafka directly
+- Microservices MUST NOT bypass Dapr to access PostgreSQL directly
+- Dapr component definitions MUST be version-controlled
+- Local Dapr configuration MUST mirror cloud configuration
 
-### Dockerfile Requirements
+## Deployment & CI/CD
 
-- MUST use multi-stage builds to minimize image size
-- MUST run as non-root user (UID 1000+)
-- MUST define explicit `HEALTHCHECK` instruction
-- MUST pin base image to SHA digest
-- MUST NOT include development dependencies in final stage
-- MUST use `.dockerignore` to exclude unnecessary files
+### Environment Strategy
 
-### Image Tagging
+| Environment | Platform | Purpose |
+|-------------|----------|---------|
+| Local Dev | Minikube | Development and testing |
+| CI | Minikube (GitHub Actions) | Automated validation |
+| Cloud | AKS / GKE | Production deployment |
 
-- Development: `<service>:dev-<short-sha>`
-- Release: `<service>:v<semver>` (e.g., `backend:v1.2.3`)
-- Never use `:latest` outside of local development
+### CI/CD Pipeline Requirements
 
-### Image Registry
-
-- Local development: Minikube's built-in registry or `eval $(minikube docker-env)`
-- Production path: Container registry (GitHub Container Registry, ECR, GCR)
-
-## Kubernetes Standards
-
-### Resource Definitions
-
-All Deployments MUST define:
-
-- `resources.requests` (guaranteed allocation)
-- `resources.limits` (maximum allowed)
-- `livenessProbe` (is the process alive?)
-- `readinessProbe` (can it serve traffic?)
-- `startupProbe` (for slow-starting containers)
-
-### Pod Disruption Budgets
-
-Services with replicas > 1 MUST define PodDisruptionBudgets to ensure availability
-during node maintenance.
-
-### Network Policies
-
-Network segmentation MUST be enforced:
-
-- Frontend pods: ingress from ingress controller only
-- Backend pods: ingress from frontend pods only
-- Database pods: ingress from backend pods only
-
-## Helm Governance
-
-### Chart Structure
-
-```
-charts/
-├── todo-frontend/
-│   ├── Chart.yaml
-│   ├── values.yaml
-│   ├── values-dev.yaml
-│   ├── values-staging.yaml
-│   └── templates/
-├── todo-backend/
-│   └── ...
-└── todo-infrastructure/
-    └── ...
-```
-
-### Versioning
-
-- Chart version: Incremented on any template change
-- App version: Matches the container image version being deployed
-- Breaking changes: MAJOR version bump, documented in CHANGELOG
-
-### Dependencies
-
-- Subchart dependencies MUST be pinned to specific versions
-- `helm dependency update` MUST be run in CI before packaging
-
-## AI DevOps Policy
-
-### Approved Tools
-
-| Tool | Purpose | Approval Level |
-|------|---------|----------------|
-| `kubectl-ai` | Natural language K8s queries | Self-service |
-| `kagent` | Automated cluster operations | Requires review |
-| `helm` | Standard deployments | Self-service |
-
-### Guardrails
-
-- AI-generated `delete` commands require explicit confirmation
-- AI cannot modify RBAC, NetworkPolicies, or Secrets directly
-- All AI operations MUST be logged with prompt and response
-- AI suggestions that violate this constitution MUST be rejected
+- GitHub Actions MUST build Docker images for all 5 microservices
+- GitHub Actions MUST run unit and integration tests
+- GitHub Actions MUST deploy to Minikube for CI validation
+- Cloud deployment MUST mirror the Minikube setup exactly
+- Pipeline failures MUST block deployment
 
 ## Security Standards
 
-### RBAC
+### Secrets
 
-- Principle of least privilege: Services get only required permissions
-- No cluster-admin bindings in application namespaces
-- ServiceAccounts MUST be explicitly created (no default SA usage)
+- Secrets MUST NEVER be hardcoded; use Dapr Secrets API or K8s Secrets
+- All inter-service communication MUST support TLS or mTLS where possible
+- `.env` files MUST be gitignored; `env.example` files document required vars
 
 ### Pod Security
 
 - Pods MUST run as non-root
-- Pods MUST have read-only root filesystem where possible
 - Privileged containers are prohibited
-- Host networking/PID/IPC namespaces are prohibited
+- ServiceAccounts MUST be explicitly created (no default SA usage)
 
-### Secret Management
+## Failure Modes / Restrictions
 
-- Secrets MUST be encrypted at rest (Kubernetes EncryptionConfiguration)
-- Secret access MUST be audited via Kubernetes audit logs
-- External secret operators (e.g., External Secrets Operator) are preferred
-  for production
+The following are **hard restrictions** that agents and developers MUST NOT
+violate under any circumstances:
 
-## Scalability Standards
-
-### Horizontal Pod Autoscaling
-
-- HPA MUST be configured for stateless services
-- Scale triggers: CPU > 70%, Memory > 80%, or custom metrics
-- Minimum replicas: 2 for production-like environments
-- Maximum replicas: Defined per service based on resource quotas
-
-### Vertical Scaling
-
-- VPA (Vertical Pod Autoscaler) MAY be used in recommendation mode
-- VPA auto-apply is prohibited without extensive testing
-
-### Database Scaling
-
-- Neon PostgreSQL is managed externally; connection pooling is REQUIRED
-- Backend MUST use connection pools with explicit limits
-
-## Observability & Debugging Policy
-
-### Logging
-
-- Format: JSON with fields `timestamp`, `level`, `service`, `message`, `trace_id`
-- Aggregation: Logs forwarded to stdout, collected by cluster logging stack
-- Retention: 7 days for dev, 30 days for staging/prod simulation
-
-### Metrics
-
-- Exposition: Prometheus format on `:9090/metrics` or service-specific port
-- Collection: Prometheus scrape via ServiceMonitor CRDs
-- Dashboards: Grafana dashboards deployed via Helm
-
-### Tracing
-
-- Protocol: OpenTelemetry (OTLP)
-- Sampling: 100% in dev, 10% in prod simulation
-- Visualization: Jaeger or Tempo
-
-### Debugging Workflow
-
-1. Check pod status: `kubectl get pods -n <namespace>`
-2. Check logs: `kubectl logs -f <pod> -n <namespace>`
-3. Check events: `kubectl describe pod <pod> -n <namespace>`
-4. Attach debug container: `kubectl debug -it <pod> --image=busybox`
-5. NEVER modify running containers directly
-
-## Non-Goals
-
-The following are explicitly OUT OF SCOPE for Phase IV:
-
-- Multi-cluster federation
-- Service mesh (Istio/Linkerd) — evaluate in Phase V
-- GitOps (ArgoCD/Flux) — evaluate in Phase V
-- Cloud-managed Kubernetes (EKS/GKE/AKS) — Phase IV is local only
-- Production traffic handling — this is a development/learning environment
-- High availability beyond local simulation
-- Disaster recovery procedures
+- Agents **MUST NOT** modify Phase 4 code (Principle VI)
+- Agents **MUST NOT** generate code without a Task ID reference (Principle I)
+- Agents **MUST NOT** bypass Dapr for inter-service communication or event
+  publishing (Principle II)
+- Agents **MUST NOT** access Kafka or PostgreSQL directly; all access MUST go
+  through Dapr (Principle II)
+- Any missing specification MUST trigger a clarification request; agents
+  MUST NOT improvise features (Principle I)
 
 ## Acceptance Definition
 
-Phase IV is considered complete when:
+Phase V is considered complete when:
 
-- [ ] All services (frontend, backend) have production-ready Dockerfiles
-- [ ] Helm charts exist for all services with dev/staging/prod values
-- [ ] `helm install` brings up the complete system in under 5 minutes
-- [ ] All secrets are injected via Kubernetes Secrets (none hardcoded)
+- [ ] All 5 microservices have production-ready Dockerfiles
+- [ ] All services communicate exclusively via Dapr sidecars
+- [ ] Kafka topics (task-events, reminders, task-updates) are operational
+- [ ] Dapr Pub/Sub, State, Jobs, and Secrets building blocks are configured
+- [ ] All secrets are managed via Dapr Secrets API (none hardcoded)
 - [ ] Health checks pass for all pods within 60 seconds of deployment
-- [ ] Prometheus metrics are exposed and scrapeable
-- [ ] Logs are structured JSON and visible via `kubectl logs`
-- [ ] `helm upgrade --atomic` successfully updates running deployments
-- [ ] `helm rollback` successfully reverts to previous release
-- [ ] Resource requests/limits are defined for all containers
-- [ ] No manual YAML exists outside of Helm templates
-- [ ] AI tooling (kubectl-ai) can query cluster state successfully
+- [ ] Logs are structured JSON with Task ID references
+- [ ] GitHub Actions CI/CD pipeline builds, tests, and deploys all services
+- [ ] Minikube hosts all services locally
+- [ ] Cloud deployment (AKS/GKE) mirrors Minikube configuration
+- [ ] No Phase 4 code has been modified
+- [ ] All code references traceable Phase 5 Task IDs
 
 ## Governance
 
@@ -417,4 +352,4 @@ Phase IV is considered complete when:
 - MINOR: New principle or section added
 - PATCH: Clarification or typo fix
 
-**Version**: 1.0.0 | **Ratified**: 2025-02-07 | **Last Amended**: 2025-02-07
+**Version**: 2.0.0 | **Ratified**: 2025-02-07 | **Last Amended**: 2026-02-08

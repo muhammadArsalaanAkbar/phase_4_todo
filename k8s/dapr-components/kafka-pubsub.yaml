@@ -1,0 +1,19 @@
+# Task: T009 — Dapr Pub/Sub component (pubsub.kafka)
+# Points to Redpanda broker at redpanda:9092 per research.md
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: kafka-pubsub
+  namespace: todo-dev
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+    - name: brokers
+      value: "redpanda.todo-dev.svc.cluster.local:9092"
+    - name: consumerGroup
+      value: "todo-services"
+    - name: authType
+      value: "none"
+    - name: disableTls
+      value: "true"

@@ -1,0 +1,90 @@
+# Task: T068 — Todo Service K8s deployment manifest
+# Deployment + Service + Dapr annotations
+# Port 8001, app-id=todo-service, non-root UID 1001
+# Resource limits: 200m/256Mi request, 500m/512Mi limit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-service
+  namespace: todo-dev
+  labels:
+    app: todo-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo-service
+  template:
+    metadata:
+      labels:
+        app: todo-service
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "todo-service"
+        dapr.io/app-port: "8001"
+        dapr.io/app-protocol: "http"
+        dapr.io/enable-api-logging: "true"
+    spec:
+      containers:
+        - name: todo-service
+          image: todo-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8001
+              name: http
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: dapr-db-secret
+                  key: connectionString
+            - name: LOG_LEVEL
+              value: "INFO"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8001
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 3
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 5
+            periodSeconds: 3
+            failureThreshold: 20
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: todo-service
+  namespace: todo-dev
+  labels:
+    app: todo-service
+spec:
+  type: ClusterIP
+  selector:
+    app: todo-service
+  ports:
+    - port: 8001
+      targetPort: 8001
+      name: http
