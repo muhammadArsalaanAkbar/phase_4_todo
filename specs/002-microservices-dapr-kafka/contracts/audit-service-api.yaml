@@ -1,0 +1,121 @@
+openapi: "3.1.0"
+info:
+  title: Audit Service API
+  version: "1.0.0"
+  description: |
+    Read-only API for querying task operation audit trail.
+    Audit records are created by subscribing to task-events topic.
+servers:
+  - url: http://localhost:8002
+    description: Local development
+  - url: http://audit-service.todo-dev.svc.cluster.local:8002
+    description: Minikube cluster
+
+paths:
+  /health:
+    get:
+      summary: Liveness probe
+      operationId: healthCheck
+      responses:
+        "200":
+          description: Service is alive
+
+  /health/ready:
+    get:
+      summary: Readiness probe
+      operationId: readinessCheck
+      responses:
+        "200":
+          description: Service is ready
+        "503":
+          description: Service is not ready
+
+  /api/v1/audit:
+    get:
+      summary: List audit records
+      operationId: listAuditRecords
+      parameters:
+        - name: task_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: event_type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [task-created, task-updated, task-completed, task-deleted]
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of audit records
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AuditRecord"
+                  total:
+                    type: integer
+
+  /api/v1/audit/{record_id}:
+    get:
+      summary: Get a specific audit record
+      operationId: getAuditRecord
+      parameters:
+        - name: record_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Audit record details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuditRecord"
+        "404":
+          description: Record not found
+
+components:
+  schemas:
+    AuditRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        event_id:
+          type: string
+          format: uuid
+        event_type:
+          type: string
+        task_id:
+          type: string
+          format: uuid
+        payload:
+          type: object
+        source_service:
+          type: string
+        recorded_at:
+          type: string
+          format: date-time

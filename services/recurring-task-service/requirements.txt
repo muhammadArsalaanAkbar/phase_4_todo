@@ -1,0 +1,15 @@
+# Task: T025 — Recurring Task Service dependencies
+# Includes APScheduler for recurring task scheduling (AD-2)
+fastapi>=0.110.0,<1.0
+uvicorn>=0.27.0,<1.0
+dapr>=1.16.0,<2.0
+dapr-ext-fastapi>=1.16.0,<2.0
+sqlalchemy[asyncio]>=2.0,<3.0
+asyncpg>=0.29.0,<1.0
+pydantic>=2.0,<3.0
+pydantic-settings>=2.0,<3.0
+alembic>=1.13.0,<2.0
+apscheduler>=3.10.0,<4.0
+python-json-logger>=2.0,<3.0
+# Shared library (local install)
+../shared

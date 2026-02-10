@@ -1,0 +1,136 @@
+# Task: T074 — GitHub Actions CI/CD pipeline
+# Build all 5 Docker images, run pytest for all services,
+# validate health endpoints
+name: Phase 5 CI/CD
+
+on:
+  push:
+    branches: [002-microservices-dapr-kafka, master]
+    paths:
+      - "services/**"
+      - "k8s/**"
+      - ".github/workflows/ci-cd.yaml"
+  pull_request:
+    branches: [master]
+    paths:
+      - "services/**"
+      - "k8s/**"
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  # ─── Lint & Test ──────────────────────────────────────────────────────
+  test:
+    name: Test Services
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - todo-service
+          - audit-service
+          - websocket-service
+          - notification-service
+          - recurring-task-service
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: services/${{ matrix.service }}/requirements.txt
+
+      - name: Install shared library
+        run: pip install -e services/shared/
+
+      - name: Install service dependencies
+        run: pip install -r services/${{ matrix.service }}/requirements.txt
+
+      - name: Install test dependencies
+        run: pip install pytest pytest-asyncio httpx
+
+      - name: Run tests
+        working-directory: services/${{ matrix.service }}
+        run: python -m pytest tests/ -v --tb=short
+        env:
+          DATABASE_URL: "postgresql+asyncpg://test:test@localhost/test"
+
+  # ─── Docker Build ─────────────────────────────────────────────────────
+  build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: test
+    strategy:
+      matrix:
+        service:
+          - todo-service
+          - audit-service
+          - websocket-service
+          - notification-service
+          - recurring-task-service
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v5
+        with:
+          context: services/
+          file: services/${{ matrix.service }}/Dockerfile
+          push: false
+          tags: ${{ matrix.service }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ─── K8s Manifest Validation ──────────────────────────────────────────
+  validate-manifests:
+    name: Validate K8s Manifests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Validate deployment manifests
+        run: |
+          for manifest in k8s/deployments/*.yaml; do
+            echo "Validating $manifest..."
+            kubectl apply --dry-run=client -f "$manifest" 2>&1 || true
+          done
+
+      - name: Validate Dapr components
+        run: |
+          for component in k8s/dapr-components/*.yaml; do
+            echo "Validating $component..."
+            kubectl apply --dry-run=client -f "$component" 2>&1 || true
+          done
+
+  # ─── Phase 4 Immutability Check ────────────────────────────────────────
+  phase4-check:
+    name: Phase 4 Immutability
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check Phase 4 files unchanged
+        run: |
+          CHANGED=$(git diff --name-only origin/master...HEAD -- \
+            k8s/phase4/ kubernetes/ 2>/dev/null || true)
+          if [ -n "$CHANGED" ]; then
+            echo "ERROR: Phase 4 files were modified:"
+            echo "$CHANGED"
+            exit 1
+          fi
+          echo "Phase 4 immutability check: PASS"

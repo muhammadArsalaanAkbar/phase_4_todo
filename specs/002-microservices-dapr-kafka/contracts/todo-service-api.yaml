@@ -1,0 +1,273 @@
+openapi: "3.1.0"
+info:
+  title: Todo Service API
+  version: "1.0.0"
+  description: |
+    Task CRUD operations for the Phase 5 Todo Service.
+    All state changes publish events to Kafka via Dapr Pub/Sub.
+servers:
+  - url: http://localhost:8001
+    description: Local development
+  - url: http://todo-service.todo-dev.svc.cluster.local:8001
+    description: Minikube cluster
+
+paths:
+  /health:
+    get:
+      summary: Liveness probe
+      operationId: healthCheck
+      responses:
+        "200":
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /health/ready:
+    get:
+      summary: Readiness probe (checks DB and Dapr connectivity)
+      operationId: readinessCheck
+      responses:
+        "200":
+          description: Service is ready to accept traffic
+        "503":
+          description: Service is not ready
+
+  /api/v1/tasks:
+    get:
+      summary: List all tasks
+      operationId: listTasks
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, in_progress, complete]
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tasks:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Task"
+                  total:
+                    type: integer
+
+    post:
+      summary: Create a new task
+      operationId: createTask
+      description: |
+        Creates a task and publishes task-created event to task-events
+        and task-updates topics via Dapr Pub/Sub.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskCreate"
+      responses:
+        "201":
+          description: Task created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "422":
+          description: Validation error
+
+  /api/v1/tasks/{task_id}:
+    parameters:
+      - name: task_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    get:
+      summary: Get a task by ID
+      operationId: getTask
+      responses:
+        "200":
+          description: Task details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "404":
+          description: Task not found
+
+    put:
+      summary: Update a task
+      operationId: updateTask
+      description: |
+        Updates a task and publishes task-updated event to task-events
+        and task-updates topics via Dapr Pub/Sub.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskUpdate"
+      responses:
+        "200":
+          description: Task updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "404":
+          description: Task not found
+        "422":
+          description: Validation error
+
+    delete:
+      summary: Delete a task
+      operationId: deleteTask
+      description: |
+        Deletes a task and publishes task-deleted event to task-events
+        and task-updates topics via Dapr Pub/Sub.
+      responses:
+        "204":
+          description: Task deleted
+        "404":
+          description: Task not found
+
+  /api/v1/tasks/{task_id}/complete:
+    parameters:
+      - name: task_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    post:
+      summary: Mark a task as complete
+      operationId: completeTask
+      description: |
+        Marks a task as complete and publishes task-completed event to
+        task-events and task-updates topics via Dapr Pub/Sub.
+      responses:
+        "200":
+          description: Task completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "404":
+          description: Task not found
+        "409":
+          description: Task already completed
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "healthy"
+        service:
+          type: string
+          example: "todo-service"
+        version:
+          type: string
+          example: "1.0.0"
+
+    TaskCreate:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        due_date:
+          type: string
+          format: date-time
+        reminder_time:
+          type: string
+          format: date-time
+        is_recurring:
+          type: boolean
+          default: false
+        recurrence_schedule:
+          type: string
+          enum: [daily, weekly, monthly]
+
+    TaskUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        status:
+          type: string
+          enum: [pending, in_progress, complete]
+        due_date:
+          type: string
+          format: date-time
+        reminder_time:
+          type: string
+          format: date-time
+        is_recurring:
+          type: boolean
+        recurrence_schedule:
+          type: string
+          enum: [daily, weekly, monthly]
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [pending, in_progress, complete]
+        due_date:
+          type: string
+          format: date-time
+        reminder_time:
+          type: string
+          format: date-time
+        is_recurring:
+          type: boolean
+        recurrence_schedule:
+          type: string
+          enum: [daily, weekly, monthly]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time

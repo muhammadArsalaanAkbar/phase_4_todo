@@ -1,0 +1,40 @@
+# Git
+.git/
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
+tests/
+
+# IDE
+.vscode/
+.idea/
+
+# Docs
+*.md
+specs/
+history/
+.specify/
+
+# Environment
+.env
+.env.*
+
+# Docker
+Dockerfile*
+.dockerignore
+docker-compose*.yml
+
+# K8s
+k8s/

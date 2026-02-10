@@ -1,0 +1,116 @@
+openapi: "3.1.0"
+info:
+  title: Recurring Task Service API
+  version: "1.0.0"
+  description: |
+    Manages recurring task schedules. Subscribes to task-events to detect
+    task completions and auto-generates next task instances. Uses APScheduler
+    for scheduling reminder publications to the reminders topic.
+servers:
+  - url: http://localhost:8005
+    description: Local development
+  - url: http://recurring-task-service.todo-dev.svc.cluster.local:8005
+    description: Minikube cluster
+
+paths:
+  /health:
+    get:
+      summary: Liveness probe
+      operationId: healthCheck
+      responses:
+        "200":
+          description: Service is alive
+
+  /health/ready:
+    get:
+      summary: Readiness probe
+      operationId: readinessCheck
+      responses:
+        "200":
+          description: Service is ready
+        "503":
+          description: Service is not ready
+
+  /api/v1/schedules:
+    get:
+      summary: List active recurrence schedules
+      operationId: listSchedules
+      parameters:
+        - name: is_active
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of recurrence schedules
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  schedules:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/RecurrenceSchedule"
+                  total:
+                    type: integer
+
+  /api/v1/schedules/{schedule_id}:
+    get:
+      summary: Get a specific schedule
+      operationId: getSchedule
+      parameters:
+        - name: schedule_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Schedule details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecurrenceSchedule"
+        "404":
+          description: Schedule not found
+
+components:
+  schemas:
+    RecurrenceSchedule:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        parent_task_id:
+          type: string
+          format: uuid
+        frequency:
+          type: string
+          enum: [daily, weekly, monthly]
+        next_due_date:
+          type: string
+          format: date-time
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
